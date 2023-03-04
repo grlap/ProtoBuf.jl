@@ -124,15 +124,16 @@ function codegen(io, t::EnumType, ::Context)
     maybe_generate_reserved_fields_method(io, t)
 end
 
-function codegen(io, t::ServiceType, ::Context)
+function codegen(io, t::ServiceType, ctx::Context)
     service_name = safename(t)
+    service_desc_name = "_" * service_name * "_desc"
     service_stub_stub = service_name * "BlockingStub"
     service_methods_name = "_" * service_name * "_methods"
 
     println(io, "# SERVICE: $(service_name)")
     println(io, "using gRPC")
 
-    # Service Methods
+    # Service Methods.
     println(io, "const $(service_methods_name) = gRPC.MethodDescriptor[")
     for (index, rpc_type) in enumerate(t.rpcs)
         method_name = safename(rpc_type)
@@ -150,10 +151,13 @@ function codegen(io, t::ServiceType, ::Context)
 
         println(io, "    gRPC.MethodDescriptor(\"$(method_name)\", $(index), $(request_type), $(response_type)),")
     end
-
     println(io, "] # const $(service_methods_name)")
 
-    # Service Stub
+    # Description.
+    #
+    println(io, "const $(service_desc_name) = gRPC.ServiceDescriptor(string(nameof(@__MODULE__)) * \".$(service_name)\", 1, $(service_methods_name))")
+
+    # Service Stub.
     println(io, "$(service_name)(impl::Module) = gRPC.ProtoService(_$(service_name)_desc, impl)")
     println(io)
 
@@ -172,7 +176,7 @@ function codegen(io, t::ServiceType, ::Context)
         println(io)
     end
 
-    # Exports
+    # Exports.
     for (index, rpc_type) in enumerate(t.rpcs)
         method_name = safename(rpc_type)
 
