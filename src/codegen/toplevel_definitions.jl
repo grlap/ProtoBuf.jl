@@ -126,6 +126,7 @@ end
 
 function codegen(io, t::ServiceType, ctx::Context)
     service_name = safename(t)
+    service_name_const = "_" * safename(t) * "_const"
     service_desc_name = "_" * service_name * "_desc"
     service_stub_stub = service_name * "BlockingStub"
     service_methods_name = "_" * service_name * "_methods"
@@ -155,7 +156,8 @@ function codegen(io, t::ServiceType, ctx::Context)
 
     # Description.
     #
-    println(io, "const $(service_desc_name) = gRPC.ServiceDescriptor(string(nameof(@__MODULE__)) * \".$(service_name)\", 1, $(service_methods_name))")
+    println(io, "const $(service_name_const) = string(nameof(@__MODULE__)) * \".$(service_name)\"")
+    println(io, "const $(service_desc_name) = ($(service_name_const), 1, $(service_methods_name))")
 
     # Service Stub.
     println(io, "$(service_name)(impl::Module) = gRPC.ProtoService(_$(service_name)_desc, impl)")
