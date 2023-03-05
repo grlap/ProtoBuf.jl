@@ -128,7 +128,6 @@ function codegen(io, t::ServiceType, ctx::Context)
     service_name = safename(t)
     service_name_const = "_" * safename(t) * "_const"
     service_desc_name = "_" * service_name * "_desc"
-    service_stub_stub = service_name * "BlockingStub"
     service_methods_name = "_" * service_name * "_methods"
 
     println(io, "# SERVICE: $(service_name)")
@@ -163,12 +162,6 @@ function codegen(io, t::ServiceType, ctx::Context)
     println(io, "$(service_name)(impl::Module) = gRPC.ProtoService(_$(service_name)_desc, impl)")
     println(io)
 
-    println(io, "mutable struct $(service_stub_stub) <: gRPC.AbstractProtoServiceStub{true}")
-    println(io, "    impl::gRPC.ProtoServiceBlockingStub")
-    println(io, "    $(service_stub_stub)(channel::gRPC.ProtoRpcChannel) = new(gRPC.ProtoServiceBlockingStub(_$(service_name)_desc, channel))")
-    println(io, "end # mutable struct $(service_stub_stub)")
-    println(io)
-
     # Client methods.
     for (index, rpc_type) in enumerate(t.rpcs)
         method_name = safename(rpc_type)
@@ -184,8 +177,8 @@ function codegen(io, t::ServiceType, ctx::Context)
             response_type = "AbstractChannel{" * response_type * "}"
         end
 
-        println(io, "$method_name(stub::$(service_stub_stub), controller::gRPC.ProtoRpcController, input_instance) =")
-        println(io, "    call_method(stub.impl, \"$(method_name)\", $(request_type), $(response_type), controller, input_instance)")
+        println(io, "$method_name(stub_impl, controller, input_instance) =")
+        println(io, "    call_method(stub_impl, \"$(method_name)\", $(request_type), $(response_type), controller, input_instance)")
         println(io)
     end
 
