@@ -131,7 +131,6 @@ function codegen(io, t::ServiceType, ctx::Context)
     service_methods_name = "_" * service_name * "_methods"
 
     println(io, "# SERVICE: $(service_name)")
-    println(io, "using gRPC")
 
     # Service Methods.
     println(io, "const $(service_methods_name) = Dict(")
