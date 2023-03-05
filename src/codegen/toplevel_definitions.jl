@@ -134,8 +134,7 @@ function codegen(io, t::ServiceType, ctx::Context)
     println(io, "using gRPC")
 
     # Service Methods.
-    println(io, "const $(service_methods_name) =")
-    println(io, "[")
+    println(io, "const $(service_methods_name) = Dict(")
     for (index, rpc_type) in enumerate(t.rpcs)
         method_name = safename(rpc_type)
 
@@ -150,9 +149,9 @@ function codegen(io, t::ServiceType, ctx::Context)
             response_type = "AbstractChannel{" * response_type * "}"
         end
 
-        println(io, "    (\"$(method_name)\", $(index), $(request_type), $(response_type)),")
+        println(io, "    \"$(method_name)\" => (Symbol(\"$(method_name)\"), $(index), $(request_type), $(response_type)),")
     end
-    println(io, "] # const $(service_methods_name)")
+    println(io, ") # const $(service_methods_name)")
 
     # Description.
     #
