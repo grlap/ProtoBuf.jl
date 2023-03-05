@@ -159,7 +159,7 @@ function codegen(io, t::ServiceType, ctx::Context)
     println(io, "const $(service_desc_name) = ($(service_name_const), 1, $(service_methods_name))")
 
     # Service Stub.
-    println(io, "$(service_name)(impl::Module) = gRPC.ProtoService(_$(service_name)_desc, impl)")
+    println(io, "$(service_name)(impl::Module) = (_$(service_name)_desc, impl)")
     println(io)
 
     # Client methods.
