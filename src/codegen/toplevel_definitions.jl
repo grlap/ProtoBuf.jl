@@ -171,14 +171,19 @@ function codegen(io, t::ServiceType, ctx::Context)
     for (index, rpc_type) in enumerate(t.rpcs)
         method_name = safename(rpc_type)
 
+        request_type = safename(rpc_type.request_type)
         response_type = safename(rpc_type.response_type)
+
+        if rpc_type.request_stream
+            request_type = "AbstractChannel{" * request_type * "}"
+        end
 
         if rpc_type.response_stream
             response_type = "AbstractChannel{" * response_type * "}"
         end
 
         println(io, "$method_name(stub::$(service_stub_stub), controller::gRPC.ProtoRpcController, input_instance) =")
-        println(io, "    call_method(stub.impl, \"$(method_name)\", $(response_type), controller, input_instance)")
+        println(io, "    call_method(stub.impl, \"$(method_name)\", $(request_type), $(response_type), controller, input_instance)")
         println(io)
     end
 
