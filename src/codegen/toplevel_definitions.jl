@@ -135,7 +135,7 @@ function codegen(io, t::ServiceType, ctx::Context)
     # Service Methods.
     println(io, "const $(service_methods_name) = Dict(")
     for (index, rpc_type) in enumerate(t.rpcs)
-        method_name = safename(rpc_type)
+        method_name = rpc_type.name
 
         request_type = safename(rpc_type.request_type)
         response_type = safename(rpc_type.response_type)
@@ -163,7 +163,7 @@ function codegen(io, t::ServiceType, ctx::Context)
 
     # Client methods.
     for (index, rpc_type) in enumerate(t.rpcs)
-        method_name = safename(rpc_type)
+        method_name = rpc_type.name
 
         request_type = safename(rpc_type.request_type)
         response_type = safename(rpc_type.response_type)
@@ -183,7 +183,7 @@ function codegen(io, t::ServiceType, ctx::Context)
 
     # Exports.
     for (index, rpc_type) in enumerate(t.rpcs)
-        method_name = safename(rpc_type)
+        method_name = rpc_type.name
 
         println(io, "export $(method_name)")
     end
